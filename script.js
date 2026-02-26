@@ -164,12 +164,12 @@ window.addEventListener('resize', () => {
 document.addEventListener("DOMContentLoaded", function () {
 
     const container = document.querySelector(".team-cards-container");
+    const wrapper = document.querySelector(".carousel-wrapper");
     const cards = document.querySelectorAll(".team-card");
     const prevBtn = document.querySelector(".prev-btn");
     const nextBtn = document.querySelector(".next-btn");
     const total = cards.length;
     let index = 0;
-    const autoDelay = 2500;
 
     // Create dots
     const dotsContainer = document.createElement("div");
@@ -180,6 +180,41 @@ document.addEventListener("DOMContentLoaded", function () {
         dot.addEventListener("click", () => { index = i; update(); });
         dotsContainer.appendChild(dot);
     });
+    document.querySelector(".team-carousel").after(dotsContainer);
+
+    function update() {
+        container.style.transform = "translateX(-" + (index * 100) + "%)";
+        document.querySelectorAll(".carousel-dot").forEach((d, i) => {
+            d.classList.toggle("active", i === index);
+        });
+    }
+
+    function nextSlide() { index = (index + 1) % total; update(); }
+    function prevSlide() { index = (index - 1 + total) % total; update(); }
+
+    prevBtn.addEventListener("click", prevSlide);
+    nextBtn.addEventListener("click", nextSlide);
+
+    // Touch swipe on wrapper (visible element)
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    wrapper.addEventListener("touchstart", function(e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    wrapper.addEventListener("touchend", function(e) {
+        const diffX = touchStartX - e.changedTouches[0].clientX;
+        const diffY = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+            diffX > 0 ? nextSlide() : prevSlide();
+        }
+    }, { passive: true });
+
+});
+        dotsContainer.appendChild(dot);
+
     // Insert dots after .team-carousel
     document.querySelector(".team-carousel").after(dotsContainer);
 
@@ -209,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
     }, { passive: true });
 
-});
+
 
 
 
