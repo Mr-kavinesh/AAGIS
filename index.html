@@ -227,14 +227,112 @@
                 </div>
             </div>
         </section>
-         <section id="dashboard" class="dashboard-section">
+        <section id="dashboard" class="dashboard-section">
             <div class="container">
-                <h2 class="section-title">Live Dashboard Preview</h2>
-                <div class="dashboard-container">
+                <h2 class="section-title">Live Dashboard</h2>
+
+                <!-- TAB SWITCHER -->
+                <div class="auth-tabs" id="auth-tabs">
+                    <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div class="auth-box" id="login-box">
+                    <div class="auth-icon">🔐</div>
+                    <h3>Welcome Back</h3>
+                    <p class="auth-sub">உங்கள் Phone & PIN போடுங்க</p>
+
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="login-phone" placeholder="+91 XXXXX XXXXX" />
+                    </div>
+
+                    <div class="input-group">
+                        <label>PIN (4 digits)</label>
+                        <div class="pin-display" id="login-pin-display">
+                            <span class="pin-dot" id="ldot-0"></span>
+                            <span class="pin-dot" id="ldot-1"></span>
+                            <span class="pin-dot" id="ldot-2"></span>
+                            <span class="pin-dot" id="ldot-3"></span>
+                        </div>
+                        <div class="pin-keypad">
+                            <button class="pin-key" onclick="pinPress('login','1')">1</button>
+                            <button class="pin-key" onclick="pinPress('login','2')">2</button>
+                            <button class="pin-key" onclick="pinPress('login','3')">3</button>
+                            <button class="pin-key" onclick="pinPress('login','4')">4</button>
+                            <button class="pin-key" onclick="pinPress('login','5')">5</button>
+                            <button class="pin-key" onclick="pinPress('login','6')">6</button>
+                            <button class="pin-key" onclick="pinPress('login','7')">7</button>
+                            <button class="pin-key" onclick="pinPress('login','8')">8</button>
+                            <button class="pin-key" onclick="pinPress('login','9')">9</button>
+                            <button class="pin-key pin-clear" onclick="pinClear('login')">✕</button>
+                            <button class="pin-key" onclick="pinPress('login','0')">0</button>
+                            <button class="pin-key pin-back" onclick="pinBack('login')">⌫</button>
+                        </div>
+                    </div>
+
+                    <button class="auth-submit-btn" onclick="doLogin()">Login →</button>
+                    <p class="auth-msg" id="login-msg"></p>
+                </div>
+
+                <!-- SIGNUP FORM -->
+                <div class="auth-box" id="signup-box" style="display:none;">
+                    <div class="auth-icon">📝</div>
+                    <h3>Create Account</h3>
+                    <p class="auth-sub">உங்கள் details fill பண்ணுங்க</p>
+
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="signup-name" placeholder="Your Name" />
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="signup-email" placeholder="you@email.com" />
+                    </div>
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="signup-phone" placeholder="+91 XXXXX XXXXX" />
+                    </div>
+                    <div class="input-group">
+                        <label>Device ID</label>
+                        <input type="text" id="signup-device" placeholder="AAGIS-01" />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Set PIN (4 digits)</label>
+                        <div class="pin-display" id="signup-pin-display">
+                            <span class="pin-dot" id="sdot-0"></span>
+                            <span class="pin-dot" id="sdot-1"></span>
+                            <span class="pin-dot" id="sdot-2"></span>
+                            <span class="pin-dot" id="sdot-3"></span>
+                        </div>
+                        <div class="pin-keypad">
+                            <button class="pin-key" onclick="pinPress('signup','1')">1</button>
+                            <button class="pin-key" onclick="pinPress('signup','2')">2</button>
+                            <button class="pin-key" onclick="pinPress('signup','3')">3</button>
+                            <button class="pin-key" onclick="pinPress('signup','4')">4</button>
+                            <button class="pin-key" onclick="pinPress('signup','5')">5</button>
+                            <button class="pin-key" onclick="pinPress('signup','6')">6</button>
+                            <button class="pin-key" onclick="pinPress('signup','7')">7</button>
+                            <button class="pin-key" onclick="pinPress('signup','8')">8</button>
+                            <button class="pin-key" onclick="pinPress('signup','9')">9</button>
+                            <button class="pin-key pin-clear" onclick="pinClear('signup')">✕</button>
+                            <button class="pin-key" onclick="pinPress('signup','0')">0</button>
+                            <button class="pin-key pin-back" onclick="pinBack('signup')">⌫</button>
+                        </div>
+                    </div>
+
+                    <button class="auth-submit-btn" onclick="doSignup()">Register →</button>
+                    <p class="auth-msg" id="signup-msg"></p>
+                </div>
+
+                <!-- DASHBOARD (hidden until login) -->
+                <div class="dashboard-container" id="dashboard-container" style="display:none;">
                     <div class="dashboard-header">
                         <div class="status-indicator">
                             <span class="status-dot"></span>
-                            System Active
+                            <span id="logged-in-name">System Active</span>
                         </div>
                         <div class="dashboard-stats">
                             <div class="stat">
@@ -246,17 +344,18 @@
                                 <span class="stat-label">Active</span>
                             </div>
                         </div>
+                        <button class="logout-btn" onclick="logoutUser()">🔓 Logout</button>
                     </div>
                     <div class="table-container">
                         <table class="dashboard-table">
                             <thead>
-                               <tr>
-  <th>Device</th>
-  <th>Latitude</th>
-  <th>Longitude</th>
-  <th>Status</th>
-  <th>Time</th>
-</tr>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
                             </thead>
                             <tbody id="alerts-table-body">
                                 <tr class="no-data">
@@ -266,6 +365,7 @@
                         </table>
                     </div>
                 </div>
+
             </div>
         </section>
 
@@ -305,12 +405,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
     <script type="module">
-
-import { initializeApp } from 
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import { getDatabase, ref, onValue } from 
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlQbjKbsvIPm4LuQHFxF3aC8tUtQ8__6s",
@@ -326,12 +422,171 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const alertsRef = ref(db, "alerts");
+// ── PIN STATE ──────────────────────────────────
+const pins = { login: "", signup: "" };
 
-onValue(alertsRef, (snapshot) => {
-  const data = snapshot.val();
-  displayAlerts(data);
-});
+window.switchTab = function(tab) {
+    document.getElementById("login-box").style.display   = tab === "login"  ? "block" : "none";
+    document.getElementById("signup-box").style.display  = tab === "signup" ? "block" : "none";
+    document.getElementById("tab-login").classList.toggle("active",  tab === "login");
+    document.getElementById("tab-signup").classList.toggle("active", tab === "signup");
+};
+
+window.pinPress = function(form, digit) {
+    if (pins[form].length >= 4) return;
+    pins[form] += digit;
+    updateDots(form);
+};
+window.pinBack = function(form) {
+    pins[form] = pins[form].slice(0, -1);
+    updateDots(form);
+};
+window.pinClear = function(form) {
+    pins[form] = "";
+    updateDots(form);
+};
+
+function updateDots(form) {
+    const prefix = form === "login" ? "ldot" : "sdot";
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(prefix + "-" + i)
+            .classList.toggle("filled", i < pins[form].length);
+    }
+}
+
+function setMsg(id, text, isError) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.style.color = isError ? "#ff4466" : "#00ff88";
+}
+
+function shake(displayId) {
+    const el = document.getElementById(displayId);
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 500);
+}
+
+// ── PHONE → Firebase key (remove special chars) ──
+function phoneToKey(phone) {
+    return phone.replace(/[^0-9]/g, "");
+}
+
+// ── SIGN UP ──────────────────────────────────────
+window.doSignup = async function() {
+    const name   = document.getElementById("signup-name").value.trim();
+    const email  = document.getElementById("signup-email").value.trim();
+    const phone  = document.getElementById("signup-phone").value.trim();
+    const device = document.getElementById("signup-device").value.trim();
+    const pin    = pins["signup"];
+
+    if (!name || !email || !phone || !device) {
+        setMsg("signup-msg", "❌ All fields required!", true); return;
+    }
+    if (pin.length !== 4) {
+        setMsg("signup-msg", "❌ Enter 4-digit PIN!", true); return;
+    }
+
+    const userId = phoneToKey(phone);
+    const userRef = ref(db, "users/" + userId);
+
+    try {
+        setMsg("signup-msg", "Checking...", false);
+        const snap = await get(userRef);
+        if (snap.exists()) {
+            setMsg("signup-msg", "❌ Phone already registered! Please login.", true);
+            return;
+        }
+
+        await set(userRef, { name, email, phone, device, pin });
+        setMsg("signup-msg", "✅ Registered! Now login.", false);
+
+        // Clear form
+        ["signup-name","signup-email","signup-phone","signup-device"].forEach(id => {
+            document.getElementById(id).value = "";
+        });
+        pins["signup"] = "";
+        updateDots("signup");
+
+        setTimeout(() => window.switchTab("login"), 1500);
+
+    } catch (err) {
+        setMsg("signup-msg", "❌ Error: " + err.message, true);
+    }
+};
+
+// ── LOGIN ─────────────────────────────────────────
+window.doLogin = async function() {
+    const phone = document.getElementById("login-phone").value.trim();
+    const pin   = pins["login"];
+
+    if (!phone) {
+        setMsg("login-msg", "❌ Enter phone number!", true); return;
+    }
+    if (pin.length !== 4) {
+        setMsg("login-msg", "❌ Enter 4-digit PIN!", true); return;
+    }
+
+    const userId  = phoneToKey(phone);
+    const userRef = ref(db, "users/" + userId);
+
+    try {
+        setMsg("login-msg", "Verifying...", false);
+        const snap = await get(userRef);
+
+        if (!snap.exists()) {
+            setMsg("login-msg", "❌ Phone not registered. Please Sign Up!", true);
+            return;
+        }
+
+        const userData = snap.val();
+        if (String(userData.pin) !== pin) {
+            setMsg("login-msg", "❌ Wrong PIN!", true);
+            shake("login-pin-display");
+            pins["login"] = "";
+            updateDots("login");
+            return;
+        }
+
+        // ✅ Login success
+        showDashboard(userId, userData);
+
+    } catch (err) {
+        setMsg("login-msg", "❌ Error: " + err.message, true);
+    }
+};
+
+// ── SHOW DASHBOARD ────────────────────────────────
+let alertsUnsub = null;
+
+function showDashboard(userId, user) {
+    document.getElementById("auth-tabs").style.display       = "none";
+    document.getElementById("login-box").style.display       = "none";
+    document.getElementById("signup-box").style.display      = "none";
+    document.getElementById("dashboard-container").style.display = "block";
+
+    document.getElementById("logged-in-name").textContent =
+        "👤 " + user.name + "  |  📱 " + user.device;
+
+    // Listen to this user's alerts only
+    const alertsRef = ref(db, "alerts/" + userId);
+    alertsUnsub = onValue(alertsRef, (snap) => {
+        displayAlerts(snap.val());
+    });
+}
+
+// ── LOGOUT ────────────────────────────────────────
+window.logoutUser = function() {
+    if (alertsUnsub) alertsUnsub();
+    alertsUnsub = null;
+    pins["login"] = "";
+    updateDots("login");
+    document.getElementById("login-phone").value = "";
+    document.getElementById("login-msg").textContent = "";
+    document.getElementById("dashboard-container").style.display = "none";
+    document.getElementById("auth-tabs").style.display = "flex";
+    document.getElementById("login-box").style.display = "block";
+    window.switchTab("login");
+};
 
 </script>
     
