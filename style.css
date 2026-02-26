@@ -4,6 +4,11 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
 :root {
     --primary-color: #00d4ff;
     --secondary-color: #0099ff;
@@ -21,6 +26,7 @@ body {
     background: var(--bg-dark);
     color: var(--text-primary);
     overflow-x: hidden;
+    overflow-y: auto;
     line-height: 1.6;
 }
 
