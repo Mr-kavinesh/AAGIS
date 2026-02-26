@@ -1,4 +1,3 @@
-
 gsap.registerPlugin(ScrollTrigger);
 
 window.addEventListener('load', () => {
@@ -168,45 +167,47 @@ document.addEventListener("DOMContentLoaded", function () {
     const cards = document.querySelectorAll(".team-card");
     const prevBtn = document.querySelector(".prev-btn");
     const nextBtn = document.querySelector(".next-btn");
-
+    const total = cards.length;
     let index = 0;
-    const visibleCards = 5;
-    const autoDelay = 2500; // auto slide speed (ms)
+    const autoDelay = 2500;
 
-    function getMoveAmount() {
-        const cardWidth = cards[0].offsetWidth;
-        const gap = 30;
-        return cardWidth + gap;
+    // Create dots
+    const dotsContainer = document.createElement("div");
+    dotsContainer.className = "carousel-dots";
+    cards.forEach((_, i) => {
+        const dot = document.createElement("button");
+        dot.className = "carousel-dot" + (i === 0 ? " active" : "");
+        dot.addEventListener("click", () => { index = i; update(); });
+        dotsContainer.appendChild(dot);
+    });
+    // Insert dots after .team-carousel
+    document.querySelector(".team-carousel").after(dotsContainer);
+
+    function update() {
+        container.style.transform = `translateX(-${index * 100}%)`;
+        document.querySelectorAll(".carousel-dot").forEach((d, i) => {
+            d.classList.toggle("active", i === index);
+        });
     }
 
-    function moveCarousel() {
-        container.style.transform =
-            `translateX(-${index * getMoveAmount()}px)`;
-    }
-
-    function nextSlide() {
-        const maxIndex = cards.length - visibleCards;
-        index = (index >= maxIndex) ? 0 : index + 1;
-        moveCarousel();
-    }
-
-    function prevSlide() {
-        const maxIndex = cards.length - visibleCards;
-        index = (index <= 0) ? maxIndex : index - 1;
-        moveCarousel();
-    }
+    function nextSlide() { index = (index + 1) % total; update(); }
+    function prevSlide() { index = (index - 1 + total) % total; update(); }
 
     nextBtn.addEventListener("click", nextSlide);
     prevBtn.addEventListener("click", prevSlide);
 
-    // ✅ AUTO ROTATION
-    let autoSlide = setInterval(nextSlide, autoDelay);
 
-    // hover panna pause
-    container.addEventListener("mouseenter", () => clearInterval(autoSlide));
-    container.addEventListener("mouseleave", () => {
-        autoSlide = setInterval(nextSlide, autoDelay);
-    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    container.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        clearInterval(autoSlide);
+    }, { passive: true });
+    container.addEventListener("touchend", (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+    }, { passive: true });
 
 });
 
@@ -274,5 +275,3 @@ function displayAlerts(data) {
   document.getElementById("total-alerts").textContent = total;
   document.getElementById("active-alerts").textContent = total;
 }
-
-
