@@ -1,20 +1,27 @@
 gsap.registerPlugin(ScrollTrigger);
 
-window.addEventListener('load', () => {
+function hideLoader() {
     const loader = document.getElementById('loader');
     const mainContent = document.getElementById('main-content');
-
+    if (loader.style.display === 'none') return; // already hidden
     gsap.to(loader, {
         opacity: 0,
         duration: 0.8,
-        delay: 2.5,
         onComplete: () => {
             loader.style.display = 'none';
             mainContent.style.opacity = 1;
             initAnimations();
         }
     });
+}
+
+// Normal load event
+window.addEventListener('load', () => {
+    setTimeout(hideLoader, 2500);
 });
+
+// Mobile fallback - 4 seconds-க்கு மேல் loader இருந்தா force hide
+setTimeout(hideLoader, 4000);
 
 function initAnimations() {
     gsap.from('.hero-title', {
