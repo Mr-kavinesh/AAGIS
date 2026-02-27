@@ -310,4 +310,4 @@ function displayAlerts(data) {
 
   document.getElementById("total-alerts").textContent = total;
   document.getElementById("active-alerts").textContent = total;
-}
+                          }
