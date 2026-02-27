@@ -5,26 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AAGIS - Smart Emergency Alert and Tracking System</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-        // Loader - CDN depend பண்ணாம guaranteed hide
-        window._loaderDone = false;
-        function _hideLoader() {
-            if (window._loaderDone) return;
-            window._loaderDone = true;
-            var loader = document.getElementById('loader');
-            var main = document.getElementById('main-content');
-            if (!loader) return;
-            loader.style.transition = 'opacity 0.6s ease';
-            loader.style.opacity = '0';
-            setTimeout(function() {
-                loader.style.display = 'none';
-                if (main) main.style.opacity = '1';
-            }, 600);
-        }
-        // 2.5s-ல hide - no matter what
-        setTimeout(_hideLoader, 2500);
-        window.addEventListener('load', function() { setTimeout(_hideLoader, 500); });
-    </script>
 </head>
 <body>
     <div id="loader" class="loader">
@@ -371,3 +351,244 @@
                             <thead>
                                 <tr>
                                     <th>Device</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alerts-table-body">
+                                <tr class="no-data">
+                                    <td colspan="5">Monitoring for alerts...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-about">
+                        <h3>AAGIS</h3>
+                        <p>A smart emergency alert and tracking system designed to provide real-time SOS alerts with GPS tracking and cloud monitoring. Built as a college project to demonstrate IoT integration with cloud technology.</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#hero">Home</a></li>
+                            <li><a href="#how-it-works">How It Works</a></li>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#team">Team</a></li>
+                            <li><a href="#dashboard">Dashboard</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-contact">
+                        <h4>Project Info</h4>
+                        <p>Emergency Alert System</p>
+                        <p>IoT & Cloud Integration</p>
+                        <p>College Project 2025</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 CYBER CRUX. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAlQbjKbsvIPm4LuQHFxF3aC8tUtQ8__6s",
+  authDomain: "aagis-1d4a5.firebaseapp.com",
+  databaseURL: "https://aagis-1d4a5-default-rtdb.firebaseio.com",
+  projectId: "aagis-1d4a5",
+  storageBucket: "aagis-1d4a5.firebasestorage.app",
+  messagingSenderId: "671639752722",
+  appId: "1:671639752722:web:120dda1fb26e2d5dc288cb",
+  measurementId: "G-T5MVZTYCTT"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── PIN STATE ──────────────────────────────────
+const pins = { login: "", signup: "" };
+
+window.switchTab = function(tab) {
+    document.getElementById("login-box").style.display   = tab === "login"  ? "block" : "none";
+    document.getElementById("signup-box").style.display  = tab === "signup" ? "block" : "none";
+    document.getElementById("tab-login").classList.toggle("active",  tab === "login");
+    document.getElementById("tab-signup").classList.toggle("active", tab === "signup");
+};
+
+window.pinPress = function(form, digit) {
+    if (pins[form].length >= 4) return;
+    pins[form] += digit;
+    updateDots(form);
+};
+window.pinBack = function(form) {
+    pins[form] = pins[form].slice(0, -1);
+    updateDots(form);
+};
+window.pinClear = function(form) {
+    pins[form] = "";
+    updateDots(form);
+};
+
+function updateDots(form) {
+    const prefix = form === "login" ? "ldot" : "sdot";
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(prefix + "-" + i)
+            .classList.toggle("filled", i < pins[form].length);
+    }
+}
+
+function setMsg(id, text, isError) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.style.color = isError ? "#ff4466" : "#00ff88";
+}
+
+function shake(displayId) {
+    const el = document.getElementById(displayId);
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 500);
+}
+
+// ── PHONE → Firebase key (remove special chars) ──
+function phoneToKey(phone) {
+    return phone.replace(/[^0-9]/g, "");
+}
+
+// ── SIGN UP ──────────────────────────────────────
+window.doSignup = async function() {
+    const name   = document.getElementById("signup-name").value.trim();
+    const email  = document.getElementById("signup-email").value.trim();
+    const phone  = document.getElementById("signup-phone").value.trim();
+    const device = document.getElementById("signup-device").value.trim();
+    const pin    = pins["signup"];
+
+    if (!name || !email || !phone || !device) {
+        setMsg("signup-msg", "❌ All fields required!", true); return;
+    }
+    if (pin.length !== 4) {
+        setMsg("signup-msg", "❌ Enter 4-digit PIN!", true); return;
+    }
+
+    const userId = phoneToKey(phone);
+    const userRef = ref(db, "users/" + userId);
+
+    try {
+        setMsg("signup-msg", "Checking...", false);
+        const snap = await get(userRef);
+        if (snap.exists()) {
+            setMsg("signup-msg", "❌ Phone already registered! Please login.", true);
+            return;
+        }
+
+        await set(userRef, { name, email, phone, device, pin });
+        setMsg("signup-msg", "✅ Registered! Now login.", false);
+
+        // Clear form
+        ["signup-name","signup-email","signup-phone","signup-device"].forEach(id => {
+            document.getElementById(id).value = "";
+        });
+        pins["signup"] = "";
+        updateDots("signup");
+
+        setTimeout(() => window.switchTab("login"), 1500);
+
+    } catch (err) {
+        setMsg("signup-msg", "❌ Error: " + err.message, true);
+    }
+};
+
+// ── LOGIN ─────────────────────────────────────────
+window.doLogin = async function() {
+    const phone = document.getElementById("login-phone").value.trim();
+    const pin   = pins["login"];
+
+    if (!phone) {
+        setMsg("login-msg", "❌ Enter phone number!", true); return;
+    }
+    if (pin.length !== 4) {
+        setMsg("login-msg", "❌ Enter 4-digit PIN!", true); return;
+    }
+
+    const userId  = phoneToKey(phone);
+    const userRef = ref(db, "users/" + userId);
+
+    try {
+        setMsg("login-msg", "Verifying...", false);
+        const snap = await get(userRef);
+
+        if (!snap.exists()) {
+            setMsg("login-msg", "❌ Phone not registered. Please Sign Up!", true);
+            return;
+        }
+
+        const userData = snap.val();
+        if (String(userData.pin) !== pin) {
+            setMsg("login-msg", "❌ Wrong PIN!", true);
+            shake("login-pin-display");
+            pins["login"] = "";
+            updateDots("login");
+            return;
+        }
+
+        // ✅ Login success
+        showDashboard(userId, userData);
+
+    } catch (err) {
+        setMsg("login-msg", "❌ Error: " + err.message, true);
+    }
+};
+
+// ── SHOW DASHBOARD ────────────────────────────────
+let alertsUnsub = null;
+
+function showDashboard(userId, user) {
+    document.getElementById("auth-tabs").style.display       = "none";
+    document.getElementById("login-box").style.display       = "none";
+    document.getElementById("signup-box").style.display      = "none";
+    document.getElementById("dashboard-container").style.display = "block";
+
+    document.getElementById("logged-in-name").textContent =
+        "👤 " + user.name + "  |  📱 " + user.device;
+
+    // Listen to this user's alerts only
+    const alertsRef = ref(db, "alerts/" + userId);
+    alertsUnsub = onValue(alertsRef, (snap) => {
+        displayAlerts(snap.val());
+    });
+}
+
+// ── LOGOUT ────────────────────────────────────────
+window.logoutUser = function() {
+    if (alertsUnsub) alertsUnsub();
+    alertsUnsub = null;
+    pins["login"] = "";
+    updateDots("login");
+    document.getElementById("login-phone").value = "";
+    document.getElementById("login-msg").textContent = "";
+    document.getElementById("dashboard-container").style.display = "none";
+    document.getElementById("auth-tabs").style.display = "flex";
+    document.getElementById("login-box").style.display = "block";
+    window.switchTab("login");
+};
+
+</script>
+    
+</body>
+</html>
