@@ -1,27 +1,21 @@
 gsap.registerPlugin(ScrollTrigger);
 
+// Loader - no GSAP dependency, pure JS
 function hideLoader() {
     const loader = document.getElementById('loader');
     const mainContent = document.getElementById('main-content');
-    if (loader.style.display === 'none') return; // already hidden
-    gsap.to(loader, {
-        opacity: 0,
-        duration: 0.8,
-        onComplete: () => {
-            loader.style.display = 'none';
-            mainContent.style.opacity = 1;
-            initAnimations();
-        }
-    });
+    if (!loader || loader.style.display === 'none') return;
+    loader.style.transition = 'opacity 0.8s ease';
+    loader.style.opacity = '0';
+    setTimeout(() => {
+        loader.style.display = 'none';
+        mainContent.style.opacity = '1';
+        if (typeof gsap !== 'undefined') initAnimations();
+    }, 800);
 }
 
-// Normal load event
-window.addEventListener('load', () => {
-    setTimeout(hideLoader, 2500);
-});
-
-// Mobile fallback - 4 seconds-க்கு மேல் loader இருந்தா force hide
-setTimeout(hideLoader, 4000);
+// Hide after 2.5s always — no waiting for window.load
+setTimeout(hideLoader, 2500);
 
 function initAnimations() {
     gsap.from('.hero-title', {
