@@ -1,22 +1,5 @@
 gsap.registerPlugin(ScrollTrigger);
 
-// Loader - no GSAP dependency, pure JS
-function hideLoader() {
-    const loader = document.getElementById('loader');
-    const mainContent = document.getElementById('main-content');
-    if (!loader || loader.style.display === 'none') return;
-    loader.style.transition = 'opacity 0.8s ease';
-    loader.style.opacity = '0';
-    setTimeout(() => {
-        loader.style.display = 'none';
-        mainContent.style.opacity = '1';
-        if (typeof gsap !== 'undefined') initAnimations();
-    }, 800);
-}
-
-// Hide after 2.5s always — no waiting for window.load
-setTimeout(hideLoader, 2500);
-
 function initAnimations() {
     gsap.from('.hero-title', {
         y: 100,
@@ -310,4 +293,4 @@ function displayAlerts(data) {
 
   document.getElementById("total-alerts").textContent = total;
   document.getElementById("active-alerts").textContent = total;
-                          }
+}
